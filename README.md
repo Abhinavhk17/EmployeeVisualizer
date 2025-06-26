@@ -1,4 +1,4 @@
-# Employee Visualizer
+# Employee Visualizer using C#
 
 A C# console application that fetches employee time entry data from a REST API and generates both HTML table reports and PNG pie chart visualizations.
 
@@ -72,4 +72,12 @@ Output Files:
 
 ---
 
-**Note:** Sample output files are available in this repository for preview.
+## 📸 Sample Outputs
+
+### **Pie Chart Visualization**
+![Employee Time Distribution Pie Chart](screenshots/employee_time_piechart.png)
+
+### **HTML Report Screenshot**
+![HTML Report Table](screenshots/html_report_screenshot.png)
+
+
