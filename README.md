@@ -75,9 +75,9 @@ Output Files:
 ## 📸 Sample Outputs
 
 ### **Pie Chart Visualization**
-![Employee Time Distribution Pie Chart](screenshots/employee_time_piechart.png)
+![Employee Time Distribution Pie Chart](screenshots/piechart.png)
 
 ### **HTML Report Screenshot**
-![HTML Report Table](screenshots/html_report_screenshot.png)
+![HTML Report Table](screenshots/html.png)
 
 
