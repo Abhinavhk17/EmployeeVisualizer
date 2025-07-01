@@ -3,13 +3,10 @@ using System.Text;
 
 namespace EmployeeVisualizer.Services;
 
-/// <summary>
-/// Generates professional HTML table reports from employee time data.
-/// Features configurable styling, conditional formatting, and responsive design.
-/// </summary>
+// Generates HTML table reports from employee data
 public class HtmlTableGenerator
 {
-    // Configuration properties for customization
+    // Configuration properties
     public string ReportTitle { get; set; } = "Employee Time Summary";
     public string PageTitle { get; set; } = "Employee Time Tracker";
     public double LowHoursThreshold { get; set; } = 100.0;
@@ -17,15 +14,11 @@ public class HtmlTableGenerator
     public string LowHoursColor { get; set; } = "#ffebee";
     public string LowHoursTextColor { get; set; } = "#c62828";
 
-    /// <summary>
-    /// Generates an HTML page with employee data table.
-    /// Uses configurable properties instead of hardcoded values.
-    /// </summary>
+    // Generates HTML page with employee data table
     public string GenerateEmployeeTable(List<EmployeeSummary> employeeSummaries)
     {
         var html = new StringBuilder();
         
-        // Build HTML using configurable properties
         html.AppendLine(GenerateHtmlHeader());
         html.AppendLine(GenerateStyles());
         html.AppendLine(GenerateHtmlBodyStart());
@@ -36,9 +29,6 @@ public class HtmlTableGenerator
         return html.ToString();
     }
 
-    /// <summary>
-    /// Generates the HTML header section
-    /// </summary>
     private string GenerateHtmlHeader()
     {
         return $@"<!DOCTYPE html>
@@ -49,9 +39,6 @@ public class HtmlTableGenerator
     <title>{PageTitle}</title>";
     }
 
-    /// <summary>
-    /// Generates CSS styles using configurable colors and properties
-    /// </summary>
     private string GenerateStyles()
     {
         return $@"    <style>
@@ -115,9 +102,6 @@ public class HtmlTableGenerator
 </head>";
     }
 
-    /// <summary>
-    /// Generates the HTML body start section
-    /// </summary>
     private string GenerateHtmlBodyStart()
     {
         return $@"<body>
@@ -125,9 +109,6 @@ public class HtmlTableGenerator
         <h1>{ReportTitle}</h1>";
     }
 
-    /// <summary>
-    /// Generates the table content with employee data
-    /// </summary>
     private string GenerateTableContent(List<EmployeeSummary> employeeSummaries)
     {
         var tableHtml = new StringBuilder();
@@ -156,9 +137,6 @@ public class HtmlTableGenerator
         return tableHtml.ToString();
     }
 
-    /// <summary>
-    /// Generates the footer section with configurable threshold message
-    /// </summary>
     private string GenerateFooter()
     {
         return $@"        <div class=""footer"">
@@ -167,9 +145,6 @@ public class HtmlTableGenerator
         </div>";
     }
 
-    /// <summary>
-    /// Generates the HTML body end section
-    /// </summary>
     private string GenerateHtmlBodyEnd()
     {
         return @"    </div>
@@ -177,9 +152,7 @@ public class HtmlTableGenerator
 </html>";
     }
 
-    /// <summary>
-    /// Saves the HTML content to a file
-    /// </summary>
+    // Saves HTML content to file
     public async Task SaveHtmlToFileAsync(string htmlContent, string filePath)
     {
         try
