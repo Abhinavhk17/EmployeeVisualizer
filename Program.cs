@@ -7,126 +7,70 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        Console.WriteLine("Employee Visualizer");
-        Console.WriteLine("==================");
+        Console.WriteLine("Employee Time Visualizer");
+        Console.WriteLine("========================");
         Console.WriteLine();
-        
-        // Initialize services
-        var dataService = new EmployeeDataService();
-        var htmlGenerator = new HtmlTableGenerator()
-        {
-            ReportTitle = "Employee Time Analysis Report",
-            PageTitle = "Company Time Tracker Dashboard", 
-            LowHoursThreshold = 100.0,
-            PrimaryColor = "#2e7d32",
-            LowHoursColor = "#ffcdd2",
-            LowHoursTextColor = "#d32f2f"
-        };
-        var chartGenerator = new PieChartGenerator();
         
         try
         {
-            // Fetch data from API
-            Console.WriteLine("Fetching employee time data from API...");
-            var timeEntries = await dataService.GetTimeEntriesAsync();
+            // Get employee data
+            var dataService = new EmployeeDataService();
+            var employees = await dataService.GetEmployeeDataAsync();
             
-            if (!timeEntries.Any())
+            if (employees.Count == 0)
             {
-                Console.WriteLine("No time entries found or failed to fetch data.");
+                Console.WriteLine("No employee data found!");
                 return;
             }
-
-            Console.WriteLine($"Successfully fetched {timeEntries.Count} time entries.");
             
-            // Process and summarize data
-            var employeeSummaries = dataService.CalculateEmployeeSummaries(timeEntries);
-            
-            Console.WriteLine($"Processed data for {employeeSummaries.Count} employees.");
-            Console.WriteLine();
-            
-            // Display top employees
-            Console.WriteLine("Top 10 Employees by Total Hours:");
-            Console.WriteLine("================================");
-            foreach (var employee in employeeSummaries.Take(10))
+            Console.WriteLine($"Found {employees.Count} employees:");
+            foreach (var emp in employees.Take(10))
             {
-                var status = employee.TotalHours < htmlGenerator.LowHoursThreshold ? $" (< {htmlGenerator.LowHoursThreshold} hours)" : "";
-                Console.WriteLine($"{employee.EmployeeName}: {employee.TotalHours:F2} hours{status}");
+                var lowHours = emp.TotalHours < 100 ? " (LOW)" : "";
+                Console.WriteLine($"- {emp.EmployeeName}: {emp.TotalHours:F2} hours{lowHours}");
             }
+            
             Console.WriteLine();
             
             // Generate HTML report
-            Console.WriteLine("Generating HTML table...");
-            var htmlContent = htmlGenerator.GenerateEmployeeTable(employeeSummaries);
-            var htmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "employee_time_report.html");
-            await htmlGenerator.SaveHtmlToFileAsync(htmlContent, htmlFilePath);
+            Console.WriteLine("Creating HTML report...");
+            var htmlGenerator = new HtmlTableGenerator();
+            var html = htmlGenerator.GenerateHtml(employees);
+            var htmlFile = "employee_report.html";
+            htmlGenerator.SaveToFile(html, htmlFile);
             
             // Generate pie chart
-            Console.WriteLine("Generating pie chart...");
-            using var pieChart = chartGenerator.GenerateEmployeePieChart(employeeSummaries);
-            var chartFilePath = Path.Combine(Directory.GetCurrentDirectory(), "employee_time_piechart.png");
-            chartGenerator.SaveChartToFile(pieChart, chartFilePath);
+            Console.WriteLine("Creating pie chart...");
+            var chartGenerator = new PieChartGenerator();
+            using var chart = chartGenerator.CreatePieChart(employees);
+            var chartFile = "employee_chart.png";
+            chartGenerator.SaveChart(chart, chartFile);
             
             Console.WriteLine();
-            Console.WriteLine("Output Files:");
-            Console.WriteLine($"- HTML Report: {htmlFilePath}");
-            Console.WriteLine($"- Pie Chart: {chartFilePath}");
+            Console.WriteLine("Files created:");
+            Console.WriteLine($"- HTML Report: {htmlFile}");
+            Console.WriteLine($"- Pie Chart: {chartFile}");
+            
+            // Ask to open files
             Console.WriteLine();
-            
-            // Interactive file opening
-            Console.WriteLine("Would you like to open the HTML report? (y/n): ");
-            var openHtml = Console.ReadLine()?.ToLower().StartsWith("y") ?? false;
-            
-            if (openHtml && File.Exists(htmlFilePath))
+            Console.Write("Open HTML report? (y/n): ");
+            if (Console.ReadLine()?.ToLower() == "y")
             {
-                try
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = htmlFilePath,
-                        UseShellExecute = true
-                    });
-                    Console.WriteLine("HTML report opened in default browser.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Could not open HTML file: {ex.Message}");
-                }
+                Process.Start(new ProcessStartInfo(htmlFile) { UseShellExecute = true });
             }
             
-            Console.WriteLine();
-            
-            // Open pie chart option
-            Console.WriteLine("Would you like to open the pie chart? (y/n): ");
-            var openChart = Console.ReadLine()?.ToLower().StartsWith("y") ?? false;
-            
-            if (openChart && File.Exists(chartFilePath))
+            Console.Write("Open pie chart? (y/n): ");
+            if (Console.ReadLine()?.ToLower() == "y")
             {
-                try
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = chartFilePath,
-                        UseShellExecute = true
-                    });
-                    Console.WriteLine("Pie chart opened in default image viewer.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Could not open chart file: {ex.Message}");
-                }
+                Process.Start(new ProcessStartInfo(chartFile) { UseShellExecute = true });
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
-        }
-        finally
-        {
-            dataService.Dispose();
+            Console.WriteLine($"Error: {ex.Message}");
         }
         
-        Console.WriteLine();
-        Console.WriteLine("Press any key to exit...");
+        Console.WriteLine("\nPress any key to exit...");
         Console.ReadKey();
     }
 }

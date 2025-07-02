@@ -3,62 +3,43 @@ using Newtonsoft.Json;
 
 namespace EmployeeVisualizer.Services;
 
-// Service for fetching and processing employee time data from REST API
 public class EmployeeDataService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient = new HttpClient();
     
-    // API endpoint with authentication
-    private const string ApiUrl = "https://rc-vault-fap-live-1.azurewebsites.net/api/gettimeentries?code=vO17RnE8vuzXzPJo5eaLLjXjmRW07law99QTD90zat9FfOQJKKUcgQ==";
-
-    public EmployeeDataService()
-    {
-        _httpClient = new HttpClient();
-    }
-
-    // Fetches time entries from API and filters valid data
-    public async Task<List<TimeEntry>> GetTimeEntriesAsync()
+    public async Task<List<EmployeeSummary>> GetEmployeeDataAsync()
     {
         try
         {
-            var response = await _httpClient.GetStringAsync(ApiUrl);
+            // Get data from API
+            string url = "https://rc-vault-fap-live-1.azurewebsites.net/api/gettimeentries?code=vO17RnE8vuzXzPJo5eaLLjXjmRW07law99QTD90zat9FfOQJKKUcgQ==";
+            var response = await _httpClient.GetStringAsync(url);
             var timeEntries = JsonConvert.DeserializeObject<List<TimeEntry>>(response) ?? new List<TimeEntry>();
             
-            // Filter out deleted entries and empty names
-            return timeEntries
-                .Where(entry => entry.DeletedOn == null && !string.IsNullOrEmpty(entry.EmployeeName))
+            // Group and sum hours by employee
+            var employeeGroups = timeEntries
+                .Where(e => e.DeletedOn == null && !string.IsNullOrEmpty(e.EmployeeName))
+                .GroupBy(e => e.EmployeeName)
+                .Select(g => new EmployeeSummary
+                {
+                    EmployeeName = g.Key!,
+                    TotalHours = g.Sum(e => e.GetTotalHours())
+                })
+                .OrderByDescending(e => e.TotalHours)
                 .ToList();
+            
+            return employeeGroups;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching data: {ex.Message}");
-            return new List<TimeEntry>();
+            Console.WriteLine($"Error: {ex.Message}");
+            return new List<EmployeeSummary>();
         }
-    }
-
-    // Groups time entries by employee and calculates total hours
-    public List<EmployeeSummary> CalculateEmployeeSummaries(List<TimeEntry> timeEntries)
-    {
-        return timeEntries
-            .GroupBy(entry => entry.EmployeeName)
-            .Select(group => new EmployeeSummary
-            {
-                EmployeeName = group.Key!,
-                TotalHours = group.Sum(entry => entry.GetTotalHours())
-            })
-            .OrderByDescending(summary => summary.TotalHours)
-            .ToList();
-    }
-
-    public void Dispose()
-    {
-        _httpClient?.Dispose();
     }
 }
 
-// Employee summary data for reports and charts
 public class EmployeeSummary
 {
-    public string EmployeeName { get; set; } = string.Empty;
+    public string EmployeeName { get; set; } = "";
     public double TotalHours { get; set; }
 }
