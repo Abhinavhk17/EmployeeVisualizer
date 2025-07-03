@@ -1,39 +1,42 @@
 using System.Drawing;
+
 namespace EmployeeVisualizer.Services;
+
 public class PieChartGenerator
 {
-    private readonly Color[] colors = { Color.Red, Color.Blue, Color.Green, Color.Orange, Color.Purple, Color.Yellow, Color.Pink, Color.Cyan, Color.Brown, Color.Gray };
+    private readonly Color[] colors = { Color.Red, Color.Blue, Color.Green, Color.Orange, Color.Purple, Color.Yellow, Color.Cyan, Color.Brown, Color.Gray, Color.Pink };
+
     public Bitmap CreatePieChart(List<EmployeeSummary> employees)
     {
-        var bitmap = new Bitmap(800, 600);
-        using var g = Graphics.FromImage(bitmap);
+        var bmp = new Bitmap(600, 400);
+        using var g = Graphics.FromImage(bmp);
         g.Clear(Color.White);
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        var chartRect = new Rectangle(50, 50, 300, 300);
-        var totalHours = employees.Sum(e => e.TotalHours);
-        if (totalHours == 0) return bitmap;
-        g.DrawString("Employee Time Distribution", new Font("Arial", 16, FontStyle.Bold), Brushes.Black, 200, 10);
-        float startAngle = 0;
+
+        double total = employees.Sum(e => e.TotalHours);
+        float angle = 0;
+        var rect = new Rectangle(30, 30, 200, 200);
+
         for (int i = 0; i < employees.Count; i++)
         {
-            var emp = employees[i];
-            var sweepAngle = (float)(emp.TotalHours / totalHours * 360);
-            var color = colors[i % colors.Length];
-            g.FillPie(new SolidBrush(color), chartRect, startAngle, sweepAngle);
-            g.DrawPie(Pens.Black, chartRect, startAngle, sweepAngle);
-            startAngle += sweepAngle;
+            float sweep = (float)(employees[i].TotalHours / total * 360);
+            using var brush = new SolidBrush(colors[i % colors.Length]);
+            g.FillPie(brush, rect, angle, sweep);
+            angle += sweep;
         }
-        int legendY = 80;
+
         for (int i = 0; i < employees.Count; i++)
         {
-            var emp = employees[i];
-            var color = colors[i % colors.Length];
-            g.FillRectangle(new SolidBrush(color), 400, legendY, 15, 15);
-            g.DrawRectangle(Pens.Black, 400, legendY, 15, 15);
-            g.DrawString($"{emp.EmployeeName}: {emp.TotalHours:F1}h ({emp.TotalHours / totalHours:P1})", new Font("Arial", 10), Brushes.Black, 420, legendY);
-            legendY += 25;
+            using var brush = new SolidBrush(colors[i % colors.Length]);
+            g.FillRectangle(brush, 250, 40 + i * 25, 15, 15);
+            g.DrawString(employees[i].EmployeeName, new Font("Arial", 9), Brushes.Black, 270, 40 + i * 25);
         }
-        return bitmap;
+
+        return bmp;
     }
-    public void SaveChart(Bitmap chart, string filePath) { chart.Save(filePath, System.Drawing.Imaging.ImageFormat.Png); Console.WriteLine($"Chart saved: {filePath}"); }
+
+    public void SaveChart(Bitmap chart, string filePath)
+    {
+        chart.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+        Console.WriteLine($"Chart saved: {filePath}");
+    }
 }

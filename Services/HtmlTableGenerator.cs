@@ -1,14 +1,18 @@
 namespace EmployeeVisualizer.Services;
+
 public class HtmlTableGenerator
 {
     public string GenerateHtml(List<EmployeeSummary> employees)
     {
-        var tableRows = string.Join("", employees.Select(e => 
-            $"<tr{(e.TotalHours < 100 ? " class='low-hours'" : "")}>" +
-            $"<td>{e.EmployeeName}</td>" +
-            $"<td>{e.TotalHours:F2}</td>" +
-            $"</tr>"));
+        // Build table rows with conditional class for low hours
+        var tableRows = string.Join("", employees.Select(emp =>
+            $"<tr{(emp.TotalHours < 100 ? " class='low-hours'" : "")}>" +
+            $"<td>{emp.EmployeeName}</td>" +
+            $"<td>{emp.TotalHours:F2}</td>" +
+            "</tr>"
+        ));
 
+        // Return formatted HTML
         return $@"<!DOCTYPE html>
 <html>
 <head>
@@ -33,9 +37,9 @@ public class HtmlTableGenerator
 </html>";
     }
 
-    public void SaveToFile(string html, string filePath) 
-    { 
-        File.WriteAllText(filePath, html); 
-        Console.WriteLine($"HTML saved: {filePath}"); 
+    public void SaveToFile(string html, string filePath)
+    {
+        File.WriteAllText(filePath, html);
+        Console.WriteLine($"HTML saved: {filePath}");
     }
 }

@@ -1,3 +1,17 @@
+# Employee Visualizer
+
+A simple C# console app that fetches employee time entry data from a REST API, summarizes hours per employee, and generates:
+- An HTML report with conditional row highlighting for employees with less than 100 hours
+- A PNG pie chart showing each employee's share of total hours
+
+## Project Structure
+
+- `Program.cs` — Main entry point, coordinates everything
+- `Models/TimeEntry.cs` — Represents a time entry from the API
+- `Services/EmployeeDataService.cs` — Fetches and summarizes employee data
+- `Services/HtmlTableGenerator.cs` — Generates the HTML report
+- `Services/PieChartGenerator.cs` — Generates the pie chart image
+
 # Employee Visualizer using C#
 
 A C# console application that fetches employee time entry data from a REST API and generates both HTML table reports and PNG pie chart visualizations.
@@ -66,11 +80,7 @@ Output Files:
 - Pie Chart: employee_time_piechart.png
 ```
 
-### **Generated Files**
-- **`employee_time_report.html`** - Professional HTML table report
-- **`employee_time_piechart.png`** - Visual pie chart (1000x700 pixels)
 
----
 
 ## 📸 Sample Outputs
 
